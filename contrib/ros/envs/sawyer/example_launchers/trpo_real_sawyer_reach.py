@@ -20,9 +20,7 @@ def run_task(*_):
 
     rospy.init_node('trpo_real_sawyer_reach_exp', anonymous=True)
 
-    reach_env = ReachEnv(initial_goal,
-                         task_obj_mgr,
-                         simulated=False)
+    reach_env = ReachEnv(initial_goal, task_obj_mgr, simulated=False)
 
     rospy.on_shutdown(reach_env.shutdown)
 

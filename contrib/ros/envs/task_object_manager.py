@@ -87,7 +87,8 @@ class TaskObjectManager(object):
         return self._targets
 
     def sub_gazebo(self):
-        rospy.Subscriber('/gazebo/model_states', ModelStates, self._gazebo_update_manipulated_states)
+        rospy.Subscriber('/gazebo/model_states', ModelStates,
+                         self._gazebo_update_manipulated_states)
 
     def _gazebo_update_manipulated_states(self, data):
         model_states = data
@@ -101,7 +102,8 @@ class TaskObjectManager(object):
 
     def sub_vicon(self):
         for manipulated in self._manipulateds:
-            rospy.Subscriber(manipulated.resource, TransformStamped, self._vicon_update_manipulated_states)
+            rospy.Subscriber(manipulated.resource, TransformStamped,
+                             self._vicon_update_manipulated_states)
 
     def _vicon_update_manipulated_states(self, data):
         translation = data.transform.translation
@@ -118,10 +120,14 @@ class TaskObjectManager(object):
         manipulateds_ori = np.array([])
 
         for manipulated in self._manipulateds:
-            pos = np.array([manipulated.position.x, manipulated.position.y,
-                            manipulated.position.z])
-            ori = np.array([manipulated.orientation.x, manipulated.orientation.y,
-                            manipulated.orientation.z, manipulated.orientation.w])
+            pos = np.array([
+                manipulated.position.x, manipulated.position.y,
+                manipulated.position.z
+            ])
+            ori = np.array([
+                manipulated.orientation.x, manipulated.orientation.y,
+                manipulated.orientation.z, manipulated.orientation.w
+            ])
             manipulateds_pos = np.concatenate((manipulateds_pos, pos))
             manipulateds_ori = np.concatenate((manipulateds_ori, ori))
 
@@ -129,10 +135,4 @@ class TaskObjectManager(object):
 
         obs = np.concatenate((manipulateds_pos, manipulateds_ori))
 
-        return {
-            'obs': obs,
-            'achieved_goal': achieved_goal
-        }
-
-
-
+        return {'obs': obs, 'achieved_goal': achieved_goal}

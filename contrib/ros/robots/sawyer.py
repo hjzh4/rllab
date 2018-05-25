@@ -104,7 +104,8 @@ class Sawyer(Robot):
         # For our use
         # joints[3:10]
         # set the action space depending on different control modes
-        joint_limits = rospy.wait_for_message('/robot/joint_limits', JointLimits)
+        joint_limits = rospy.wait_for_message('/robot/joint_limits',
+                                              JointLimits)
         if self._control_mode == 'position':
             lower_bounds = np.array(joint_limits.position_lower[3:10])
             upper_bounds = np.array(joint_limits.position_upper[3:10])

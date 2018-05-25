@@ -18,23 +18,26 @@ from contrib.ros.envs.task_object_manager import TaskObject, TaskObjectManager
 
 
 def run_task(*_):
-    model_dir = osp.join(osp.dirname(contrib.ros.envs.sawyer.__file__), 'models')
+    model_dir = osp.join(
+        osp.dirname(contrib.ros.envs.sawyer.__file__), 'models')
 
-    block = TaskObject(name='block',
-                       initial_pos=Point(x=0.5725, y=0.1265, z=0.90),
-                       random_delta_range=0.15,
-                       resource=osp.join(model_dir, 'block/model.urdf'))
-    table = TaskObject(name='table',
-                       initial_pos=Point(x=0.75, y=0.0, z=0.0),
-                       random_delta_range=0.15,
-                       resource=osp.join(model_dir, 'cafe_table/model.sdf'))
+    block = TaskObject(
+        name='block',
+        initial_pos=Point(x=0.5725, y=0.1265, z=0.90),
+        random_delta_range=0.15,
+        resource=osp.join(model_dir, 'block/model.urdf'))
+    table = TaskObject(
+        name='table',
+        initial_pos=Point(x=0.75, y=0.0, z=0.0),
+        random_delta_range=0.15,
+        resource=osp.join(model_dir, 'cafe_table/model.sdf'))
     initial_goal = np.array([0.6, -0.1, 0.80])
-    target = TaskObject(name='target',
-                        initial_pos=Point(x=initial_goal[0],
-                                          y=initial_goal[1],
-                                          z=initial_goal[2]),
-                        random_delta_range=0.15,
-                        resource=osp.join(model_dir, 'target/model.sdf'))
+    target = TaskObject(
+        name='target',
+        initial_pos=Point(
+            x=initial_goal[0], y=initial_goal[1], z=initial_goal[2]),
+        random_delta_range=0.15,
+        resource=osp.join(model_dir, 'target/model.sdf'))
 
     task_obj_mgr = TaskObjectManager()
     task_obj_mgr.add_target(target)
@@ -43,9 +46,7 @@ def run_task(*_):
 
     rospy.init_node('trpo_sim_sawyer_pnp_exp', anonymous=True)
 
-    pnp_env = PickAndPlaceEnv(initial_goal,
-                              task_obj_mgr,
-                              simulated=True)
+    pnp_env = PickAndPlaceEnv(initial_goal, task_obj_mgr, simulated=True)
 
     rospy.on_shutdown(pnp_env.shutdown)
 

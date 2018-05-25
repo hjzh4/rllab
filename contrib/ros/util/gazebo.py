@@ -74,13 +74,11 @@ class Gazebo(object):
 
     def load_gazebo_model(self, obj):
         if self._is_sdf(obj.resource):
-            self._load_gazebo_sdf_model(obj.name,
-                                        Pose(position=obj.initial_pos),
-                                        obj.resource)
+            self._load_gazebo_sdf_model(
+                obj.name, Pose(position=obj.initial_pos), obj.resource)
         else:
-            self._load_gazebo_urdf_model(obj.name,
-                                         Pose(position=obj.initial_pos),
-                                         obj.resource)
+            self._load_gazebo_urdf_model(
+                obj.name, Pose(position=obj.initial_pos), obj.resource)
 
     def _is_sdf(self, file_path):
         """

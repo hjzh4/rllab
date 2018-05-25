@@ -18,23 +18,22 @@ from contrib.ros.envs.task_object_manager import TaskObject, TaskObjectManager
 
 
 def run_task(*_):
-    model_dir = osp.join(osp.dirname(contrib.ros.envs.sawyer.__file__), 'models')
+    model_dir = osp.join(
+        osp.dirname(contrib.ros.envs.sawyer.__file__), 'models')
     initial_goal = np.array([0.6, -0.1, 0.8])
-    target = TaskObject(name='target',
-                        initial_pos=Point(x=initial_goal[0],
-                                          y=initial_goal[1],
-                                          z=initial_goal[2]),
-                        random_delta_range=0.15,
-                        resource=osp.join(model_dir, 'target/model.sdf'))
+    target = TaskObject(
+        name='target',
+        initial_pos=Point(
+            x=initial_goal[0], y=initial_goal[1], z=initial_goal[2]),
+        random_delta_range=0.15,
+        resource=osp.join(model_dir, 'target/model.sdf'))
 
     task_obj_mgr = TaskObjectManager()
     task_obj_mgr.add_target(target)
 
     rospy.init_node('trpo_sim_sawyer_reach_exp', anonymous=True)
 
-    reach_env = ReachEnv(initial_goal,
-                         task_obj_mgr,
-                         simulated=True)
+    reach_env = ReachEnv(initial_goal, task_obj_mgr, simulated=True)
 
     rospy.on_shutdown(reach_env.shutdown)
 

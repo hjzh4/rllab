@@ -18,10 +18,7 @@ class RosEnv(Env, Serializable):
     Superclass for all ros environment
     """
 
-    def __init__(self,
-                 task_obj_mgr,
-                 robot,
-                 simulated=False):
+    def __init__(self, task_obj_mgr, robot, simulated=False):
         """
         :param simulated: bool
                 if the environment is for real robot or simulation
@@ -116,12 +113,9 @@ class RosEnv(Env, Serializable):
                     model_name=target.name,
                     new_pose=Pose(
                         position=Point(
-                            x=self.goal[target_idx*3],
-                            y=self.goal[target_idx*3+1],
-                            z=self.goal[target_idx*3+2]
-                        )
-                    )
-                )
+                            x=self.goal[target_idx * 3],
+                            y=self.goal[target_idx * 3 + 1],
+                            z=self.goal[target_idx * 3 + 2])))
             self._reset_sim()
         else:
             self._reset_real()
@@ -139,18 +133,19 @@ class RosEnv(Env, Serializable):
             manipulated_random_delta = np.zeros(2)
             new_pos = manipulated.initial_pos
             while np.linalg.norm(manipulated_random_delta) < 0.1:
-                manipulated_random_delta = np.random.uniform(-manipulated.random_delta_range,
-                                                             manipulated.random_delta_range,
-                                                             size=2)
+                manipulated_random_delta = np.random.uniform(
+                    -manipulated.random_delta_range,
+                    manipulated.random_delta_range,
+                    size=2)
             new_pos[0] += manipulated_random_delta[0]
             new_pos[1] += manipulated_random_delta[1]
-            logger.log('new position for {} is x = {}, y = {}, z = {}'.format(manipulated.name,
-                                                                              new_pos[0],
-                                                                              new_pos[1],
-                                                                              new_pos[2]))
+            logger.log('new position for {} is x = {}, y = {}, z = {}'.format(
+                manipulated.name, new_pos[0], new_pos[1], new_pos[2]))
             ready = False
             while not ready:
-                ans = input('Have you finished setting up {}?[Yes/No]\n'.format(manipulated.name))
+                ans = input(
+                    'Have you finished setting up {}?[Yes/No]\n'.format(
+                        manipulated.name))
                 if ans.lower() == 'yes' or ans.lower() == 'y':
                     ready = True
 
@@ -162,18 +157,19 @@ class RosEnv(Env, Serializable):
         for manipulated in self.task_obj_mgr.manipulateds:
             manipulated_random_delta = np.zeros(2)
             while np.linalg.norm(manipulated_random_delta) < 0.1:
-                manipulated_random_delta = np.random.uniform(-manipulated.random_delta_range,
-                                                             manipulated.random_delta_range,
-                                                             size=2)
-            self.gazebo.set_model_pose(manipulated.name,
-                                       new_pose=Pose(
-                                           position=Point(
-                                               x=manipulated.initial_pos.x + manipulated_random_delta[0],
-                                               y=manipulated.initial_pos.y + manipulated_random_delta[1],
-                                               z=manipulated.initial_pos.z
-                                           )
-                                       ))
-
+                manipulated_random_delta = np.random.uniform(
+                    -manipulated.random_delta_range,
+                    manipulated.random_delta_range,
+                    size=2)
+            self.gazebo.set_model_pose(
+                manipulated.name,
+                new_pose=Pose(
+                    position=Point(
+                        x=manipulated.initial_pos.x +
+                        manipulated_random_delta[0],
+                        y=manipulated.initial_pos.y +
+                        manipulated_random_delta[1],
+                        z=manipulated.initial_pos.z)))
 
     @property
     def action_space(self):

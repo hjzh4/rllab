@@ -33,13 +33,10 @@ class ReachEnv(RosEnv, Serializable):
         self.initial_goal = initial_goal
         self.goal = self.initial_goal.copy()
 
-        sawyer = Sawyer(initial_joint_pos=INITIAL_ROBOT_JOINT_POS,
-                        control_mode='position')
+        sawyer = Sawyer(
+            initial_joint_pos=INITIAL_ROBOT_JOINT_POS, control_mode='position')
         RosEnv.__init__(
-            self,
-            task_obj_mgr=task_obj_mgr,
-            robot=sawyer,
-            simulated=simulated)
+            self, task_obj_mgr=task_obj_mgr, robot=sawyer, simulated=simulated)
 
     def sample_goal(self):
         """
@@ -47,9 +44,8 @@ class ReachEnv(RosEnv, Serializable):
         :return: the new sampled goal
         """
         goal = self.initial_goal.copy()
-        random_goal_delta = np.random.uniform(-self._target_range,
-                                              self._target_range,
-                                              size=3)
+        random_goal_delta = np.random.uniform(
+            -self._target_range, self._target_range, size=3)
         goal[:3] += random_goal_delta
         return goal
 
@@ -63,9 +59,11 @@ class ReachEnv(RosEnv, Serializable):
         """
         robot_obs = self._robot.get_obs()
 
-        achieved_goal = np.array([self._robot.gripper_pose['position'].x,
-                                  self._robot.gripper_pose['position'].y,
-                                  self._robot.gripper_pose['position'].z])
+        achieved_goal = np.array([
+            self._robot.gripper_pose['position'].x,
+            self._robot.gripper_pose['position'].y,
+            self._robot.gripper_pose['position'].z
+        ])
 
         return {
             'observation': robot_obs,
@@ -106,4 +104,5 @@ class ReachEnv(RosEnv, Serializable):
         :return if_done: bool
                     if current episode is done:
         """
-        return self._goal_distance(achieved_goal, goal) < self._distance_threshold
+        return self._goal_distance(achieved_goal,
+                                   goal) < self._distance_threshold

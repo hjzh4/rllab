@@ -15,10 +15,11 @@ from contrib.ros.envs.task_object_manager import TaskObject, TaskObjectManager
 
 
 def run_task(*_):
-    vicon_iser_block = TaskObject(name='vicon_iser_block',
-                                  initial_pos=Point(x=0.5725, y=0.1265, z=0.90),
-                                  random_delta_range=0.15,
-                                  resource='vicon/iser_block/iser_block')
+    vicon_iser_block = TaskObject(
+        name='vicon_iser_block',
+        initial_pos=Point(x=0.5725, y=0.1265, z=0.90),
+        random_delta_range=0.15,
+        resource='vicon/iser_block/iser_block')
 
     initial_goal = np.array([0.6, -0.1, 0.80])
 
@@ -27,9 +28,7 @@ def run_task(*_):
 
     rospy.init_node('trpo_real_sawyer_pnp_exp', anonymous=True)
 
-    push_env = PushEnv(initial_goal,
-                       task_obj_mgr,
-                       simulated=False)
+    push_env = PushEnv(initial_goal, task_obj_mgr, simulated=False)
 
     rospy.on_shutdown(push_env.shutdown)
 
