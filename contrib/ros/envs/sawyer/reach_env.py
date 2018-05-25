@@ -1,5 +1,5 @@
 """
-Push task for the sawyer robot
+Reach task for the sawyer robot
 """
 
 import numpy as np
@@ -19,7 +19,7 @@ INITIAL_ROBOT_JOINT_POS = {
 }
 
 
-class PushEnv(RosEnv, Serializable):
+class ReachEnv(RosEnv, Serializable):
     def __init__(self,
                  initial_goal,
                  task_obj_mgr,
@@ -35,7 +35,6 @@ class PushEnv(RosEnv, Serializable):
 
         sawyer = Sawyer(initial_joint_pos=INITIAL_ROBOT_JOINT_POS,
                         control_mode='position')
-
         RosEnv.__init__(
             self,
             task_obj_mgr=task_obj_mgr,
@@ -48,11 +47,10 @@ class PushEnv(RosEnv, Serializable):
         :return: the new sampled goal
         """
         goal = self.initial_goal.copy()
-
         random_goal_delta = np.random.uniform(-self._target_range,
                                               self._target_range,
-                                              size=2)
-        goal[:2] += random_goal_delta
+                                              size=3)
+        goal[:3] += random_goal_delta
         return goal
 
     def get_obs(self):
@@ -65,13 +63,13 @@ class PushEnv(RosEnv, Serializable):
         """
         robot_obs = self._robot.get_obs()
 
-        manipulated_obs = self.task_obj_mgr.get_manipulateds_obs()
-
-        obs = np.concatenate((robot_obs, manipulated_obs['obs']))
+        achieved_goal = np.array([self._robot.gripper_pose['position'].x,
+                                  self._robot.gripper_pose['position'].y,
+                                  self._robot.gripper_pose['position'].z])
 
         return {
-            'observation': obs,
-            'achieved_goal': manipulated_obs['achieved_goal'],
+            'observation': robot_obs,
+            'achieved_goal': achieved_goal,
             'desired_goal': self.goal
         }
 
@@ -94,14 +92,14 @@ class PushEnv(RosEnv, Serializable):
             else:
                 return -d
 
-    def _goal_distance(self, goal_a, goal_b):
+    def _goal_distance(self, achieved_goal, goal):
         """
-        :param goal_a:
-        :param goal_b:
+        :param achieved_goal:
+        :param goal:
         :return distance: distance between goal_a and goal_b
         """
-        assert goal_a.shape == goal_b.shape
-        return np.linalg.norm(goal_a - goal_b, axis=-1)
+        assert achieved_goal.shape == goal.shape
+        return np.linalg.norm(achieved_goal - goal, axis=-1)
 
     def done(self, achieved_goal, goal):
         """

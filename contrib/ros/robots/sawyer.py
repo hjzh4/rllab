@@ -7,20 +7,20 @@ import intera_interface
 import numpy as np
 import rospy
 
-from rllab.misc import logger
 from rllab.spaces import Box
 
+from contrib.ros.robots.robot import Robot
 
-class Sawyer(object):
+
+class Sawyer(Robot):
     def __init__(self, initial_joint_pos, control_mode):
         """
         :param initial_joint_pos: {str: float}
                             {'joint_name': position_value}
         """
+        Robot.__init__(self)
         self._limb = intera_interface.Limb('right')
         self._gripper = intera_interface.Gripper()
-        self._joint_limits = rospy.wait_for_message('/robot/joint_limits',
-                                                    JointLimits)
         self._initial_joint_pos = initial_joint_pos
         self._control_mode = control_mode
 
@@ -29,16 +29,16 @@ class Sawyer(object):
         return intera_interface.RobotEnable(
             intera_interface.CHECK_VERSION).state().enabled
 
-    def set_limb_joint_positions(self, joint_angle_cmds):
+    def _set_limb_joint_positions(self, joint_angle_cmds):
         self._limb.set_joint_positions(joint_angle_cmds)
 
-    def set_limb_joint_velocities(self, joint_angle_cmds):
+    def _set_limb_joint_velocities(self, joint_angle_cmds):
         self._limb.set_joint_velocities(joint_angle_cmds)
 
-    def set_limb_joint_torques(self, joint_angle_cmds):
+    def _set_limb_joint_torques(self, joint_angle_cmds):
         self._limb.set_joint_torques(joint_angle_cmds)
 
-    def set_gripper_position(self, position):
+    def _set_gripper_position(self, position):
         self._gripper.set_position(position)
 
     def move_to_start_position(self):
@@ -81,13 +81,13 @@ class Sawyer(object):
             'right_j6': commands[6]
         }
         if self._control_mode == 'position':
-            self.set_limb_joint_positions(joint_commands)
+            self._set_limb_joint_positions(joint_commands)
         elif self._control_mode == 'velocity':
-            self.set_limb_joint_velocities(joint_commands)
+            self._set_limb_joint_velocities(joint_commands)
         elif self._control_mode == 'effort':
-            self.set_limb_joint_torques(joint_commands)
+            self._set_limb_joint_torques(joint_commands)
 
-        self.set_gripper_position(commands[7])
+        self._set_gripper_position(commands[7])
 
     @property
     def gripper_pose(self):
@@ -104,15 +104,16 @@ class Sawyer(object):
         # For our use
         # joints[3:10]
         # set the action space depending on different control modes
+        joint_limits = rospy.wait_for_message('/robot/joint_limits', JointLimits)
         if self._control_mode == 'position':
-            lower_bounds = np.array(self._joint_limits.position_lower[3:10])
-            upper_bounds = np.array(self._joint_limits.position_upper[3:10])
+            lower_bounds = np.array(joint_limits.position_lower[3:10])
+            upper_bounds = np.array(joint_limits.position_upper[3:10])
         elif self._control_mode == 'velocity':
-            lower_bounds = np.zeros_like(self._joint_limits.velocity[3:10])
-            upper_bounds = np.array(self._joint_limits.velocity[3:10])
+            lower_bounds = np.zeros_like(joint_limits.velocity[3:10])
+            upper_bounds = np.array(joint_limits.velocity[3:10])
         elif self._control_mode == 'effort':
-            lower_bounds = np.zeros_like(self._joint_limits.effort[3:10])
-            upper_bounds = np.array(self._joint_limits.effort[3:10])
+            lower_bounds = np.zeros_like(joint_limits.effort[3:10])
+            upper_bounds = np.array(joint_limits.effort[3:10])
         else:
             raise ValueError(
                 'Control mode %s is not known!' % self._control_mode)
