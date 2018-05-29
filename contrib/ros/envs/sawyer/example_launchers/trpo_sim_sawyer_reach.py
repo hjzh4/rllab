@@ -16,6 +16,16 @@ import contrib.ros.envs.sawyer
 from contrib.ros.envs.sawyer.reach_env import ReachEnv
 from contrib.ros.envs.task_object_manager import TaskObject, TaskObjectManager
 
+INITIAL_ROBOT_JOINT_POS = {
+    'right_j0': -0.041662954890248294,
+    'right_j1': -1.0258291091425074,
+    'right_j2': 0.0293680414401436,
+    'right_j3': 2.17518162913313,
+    'right_j4': -0.06703022873354225,
+    'right_j5': 0.3968371433926965,
+    'right_j6': 1.7659649178699421,
+}
+
 
 def run_task(*_):
     model_dir = osp.join(
@@ -33,7 +43,8 @@ def run_task(*_):
 
     rospy.init_node('trpo_sim_sawyer_reach_exp', anonymous=True)
 
-    reach_env = ReachEnv(initial_goal, task_obj_mgr, simulated=True)
+    reach_env = ReachEnv(
+        INITIAL_ROBOT_JOINT_POS, initial_goal, task_obj_mgr, simulated=True)
 
     rospy.on_shutdown(reach_env.shutdown)
 

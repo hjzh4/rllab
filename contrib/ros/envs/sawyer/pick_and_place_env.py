@@ -21,6 +21,7 @@ INITIAL_ROBOT_JOINT_POS = {
 
 class PickAndPlaceEnv(RosEnv, Serializable):
     def __init__(self,
+                 initial_robot_joint_pos,
                  initial_goal,
                  task_obj_mgr,
                  sparse_reward=True,
@@ -34,7 +35,7 @@ class PickAndPlaceEnv(RosEnv, Serializable):
         self.goal = self.initial_goal.copy()
 
         sawyer = Sawyer(
-            initial_joint_pos=INITIAL_ROBOT_JOINT_POS, control_mode='position')
+            initial_joint_pos=initial_robot_joint_pos, control_mode='position')
 
         RosEnv.__init__(
             self, task_obj_mgr=task_obj_mgr, robot=sawyer, simulated=True)
