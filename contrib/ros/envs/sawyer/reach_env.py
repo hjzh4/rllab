@@ -8,19 +8,10 @@ from rllab.core.serializable import Serializable
 from contrib.ros.envs.ros_env import RosEnv
 from contrib.ros.robots.sawyer import Sawyer
 
-INITIAL_ROBOT_JOINT_POS = {
-    'right_j0': -0.041662954890248294,
-    'right_j1': -1.0258291091425074,
-    'right_j2': 0.0293680414401436,
-    'right_j3': 2.17518162913313,
-    'right_j4': -0.06703022873354225,
-    'right_j5': 0.3968371433926965,
-    'right_j6': 1.7659649178699421,
-}
-
 
 class ReachEnv(RosEnv, Serializable):
     def __init__(self,
+                 initial_robot_joint_pos,
                  initial_goal,
                  task_obj_mgr,
                  sparse_reward=False,
@@ -34,7 +25,7 @@ class ReachEnv(RosEnv, Serializable):
         self.goal = self.initial_goal.copy()
 
         sawyer = Sawyer(
-            initial_joint_pos=INITIAL_ROBOT_JOINT_POS, control_mode='position')
+            initial_joint_pos=initial_robot_joint_pos, control_mode='position')
         RosEnv.__init__(
             self, task_obj_mgr=task_obj_mgr, robot=sawyer, simulated=simulated)
 

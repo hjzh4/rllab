@@ -16,7 +16,8 @@ class Sawyer(Robot):
     def __init__(self, initial_joint_pos, control_mode):
         """
         :param initial_joint_pos: {str: float}
-                            {'joint_name': position_value}
+                            {'joint_name': position_value}, the joints in 'joint_name' list
+                            are what we are trying to control.
         """
         Robot.__init__(self)
         self._limb = intera_interface.Limb('right')
@@ -71,6 +72,7 @@ class Sawyer(Robot):
         :param commands: [float]
                     list of command for different joints and gripper
         """
+        # the order is the same with the order in initial_joint_pos
         joint_commands = {
             'right_j0': commands[0],
             'right_j1': commands[1],
@@ -106,18 +108,32 @@ class Sawyer(Robot):
         # set the action space depending on different control modes
         joint_limits = rospy.wait_for_message('/robot/joint_limits',
                                               JointLimits)
-        if self._control_mode == 'position':
-            lower_bounds = np.array(joint_limits.position_lower[3:10])
-            upper_bounds = np.array(joint_limits.position_upper[3:10])
-        elif self._control_mode == 'velocity':
-            lower_bounds = np.zeros_like(joint_limits.velocity[3:10])
-            upper_bounds = np.array(joint_limits.velocity[3:10])
-        elif self._control_mode == 'effort':
-            lower_bounds = np.zeros_like(joint_limits.effort[3:10])
-            upper_bounds = np.array(joint_limits.effort[3:10])
-        else:
-            raise ValueError(
-                'Control mode %s is not known!' % self._control_mode)
+        lower_bounds = np.array([])
+        upper_bounds = np.array([])
+        for joint in self._initial_joint_pos:
+            joint_idx = joint_limits.joint_names.index(joint)
+            if self._control_mode == 'position':
+                lower_bounds = np.concatenate((
+                    lower_bounds,
+                    np.array(
+                        joint_limits.position_lower[joint_idx:joint_idx + 1])))
+                upper_bounds = np.concatenate((
+                    upper_bounds,
+                    np.array(
+                        joint_limits.position_upper[joint_idx:joint_idx + 1])))
+            elif self._control_mode == 'velocity':
+                lower_bounds = np.concatenate((lower_bounds, np.zeros(1)))
+                upper_bounds = np.concatenate(
+                    (upper_bounds,
+                     np.array(joint_limits.velocity[joint_idx:joint_idx + 1])))
+            elif self._control_mode == 'effort':
+                lower_bounds = np.concatenate((lower_bounds, np.zeros(1)))
+                upper_bounds = np.concatenate(
+                    (upper_bounds,
+                     np.array(joint_limits.effort[joint_idx:joint_idx + 1])))
+            else:
+                raise ValueError(
+                    'Control mode %s is not known!' % self._control_mode)
         return Box(
             np.concatenate((lower_bounds, np.array([0]))),
             np.concatenate((upper_bounds, np.array([100]))))
